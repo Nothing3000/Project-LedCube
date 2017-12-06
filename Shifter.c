@@ -21,7 +21,7 @@ Shifter *newShifter(uint8_t ser, uint8_t sclk, uint8_t lclk, uint8_t shifterSize
   shifter -> serPin = ser;
   shifter -> sclkPin = sclk;
   shifter -> lclkPin = lclk;
-  shifter -> pattern = (uint8_t *)malloc( shifterSize * sizeof(uint8_t) );
+  shifter -> pattern = NULL;
   shifter -> patternSize = shifterSize;
 
   return shifter;
@@ -30,23 +30,23 @@ Shifter *newShifter(uint8_t ser, uint8_t sclk, uint8_t lclk, uint8_t shifterSize
 /*
  * Loads a new pattern into the Shifter struct.
  */
-void setShifterPattern(Shifter *leds, uint8_t *newPattern)
+void setShifterPattern(Shifter *shifter, uint8_t *newPattern)
 {
-  leds -> pattern = newPattern;
+  shifter -> pattern = newPattern;
 }
 
 /*
  * Transmits the data contained in the shifter struct to the actual shiftregister.
  */
-void updateShifter(Shifter *leds)
+void updateShifter(Shifter *shifter)
 {
-  uint8_t shifterSerPin = leds -> serPin;
-  uint8_t shifterSclkPin = leds -> sclkPin;
-  uint8_t shifterLclkPin = leds -> lclkPin;
-  uint8_t *shifterPattern = leds -> pattern;
-  uint8_t shifterPatternSize = leds -> patternSize;
+  uint8_t shifterSerPin = shifter -> serPin;
+  uint8_t shifterSclkPin = shifter -> sclkPin;
+  uint8_t shifterLclkPin = shifter -> lclkPin;
+  uint8_t *shifterPattern = shifter -> pattern;
+  uint8_t shifterPatternSize = shifter -> patternSize;
   
-  for(int i = shifterPatternSize-1; i >= 0; i--)
+  for(int8_t i = shifterPatternSize-1; i >= 0; i--)
   {
     digitalWrite(shifterSerPin, shifterPattern[i]);
     digitalWrite(shifterSclkPin, HIGH);
