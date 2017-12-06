@@ -1,5 +1,5 @@
-#ifndef LEDSHIFTER_H
-#define LEDSHIFTER_H
+#ifndef SHIFTER_H
+#define SHIFTER_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -17,10 +17,10 @@ typedef struct {
 } Shifter;
 
 Shifter *newShifter(uint8_t ser, uint8_t sclk, uint8_t lclk, uint8_t shifterSize);
-void setShifterPattern(Shifter *leds, uint8_t *newPattern);
-void updateShifter(Shifter *leds);
+void setShifterPattern(Shifter *shifter, uint8_t *newPattern);
+void updateShifter(Shifter *shifter);
 
 #ifdef __cplusplus
 }
 #endif
-#endif //LEDSHIFTER_H
+#endif //SHIFTER_H
