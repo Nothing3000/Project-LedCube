@@ -33,6 +33,7 @@ Shifter *newShifter(uint8_t ser, uint8_t sclk, uint8_t lclk, uint8_t shifterSize
 void setShifterPattern(Shifter *shifter, uint8_t *newPattern)
 {
   shifter -> pattern = newPattern;
+  updateShifter(shifter);
 }
 
 /*
