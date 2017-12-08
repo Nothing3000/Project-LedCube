@@ -11,19 +11,24 @@
 uint8_t rowPins[] = {ROWPIN1, ROWPIN2};
 
 uint8_t pattern[2][8] = {{LOW, HIGH, LOW, HIGH, LOW, HIGH, LOW, HIGH},
-                         {HIGH, LOW, HIGH, LOW, HIGH, LOW, HIGH, LOW}};
+                         {HIGH, LOW, LOW, HIGH, LOW, LOW, HIGH, LOW}};
+                         
+uint8_t pattern2[2][8] = {{HIGH, LOW, LOW, HIGH, LOW, LOW, HIGH, LOW},
+                         {LOW, HIGH, LOW, HIGH, LOW, HIGH, LOW, HIGH}};
                          
 Shifter *shifter = newShifter(SERPIN, SCLKPIN, LCLKPIN, 8);
 LedPattern *leds = newLedPattern(2, 8, rowPins, shifter);
 
-
 void setup() 
 {
-  setLedPattern(leds, &pattern[0][0]);
+  setupLedInterrupt(leds);
 }
 
 void loop()
 {
-  updateLeds(leds);
+  setLedPattern(leds, (uint8_t *)pattern);
+  delay(1000);
+  setLedPattern(leds, (uint8_t *)pattern2);
+  delay(1000);
 }
 

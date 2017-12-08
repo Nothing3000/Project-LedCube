@@ -8,6 +8,8 @@ extern "C" {
 #include "Arduino.h"
 #include "Shifter.h"
 
+#define TIMER1VALUE 64911 // preload timer 65536-16MHz/256/100Hz
+
 
 typedef struct {
   uint8_t cols;
@@ -18,6 +20,7 @@ typedef struct {
 } LedPattern;
 
 LedPattern *newLedPattern(uint8_t cols, uint8_t rows, uint8_t *rowPins, Shifter *shifter);
+void setupLedInterrupt(LedPattern *leds);
 void setLedPattern(LedPattern *leds, uint8_t *newPattern);
 void updateLeds(LedPattern *leds);
 
