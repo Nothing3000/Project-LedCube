@@ -49,7 +49,7 @@ void setLedCubeLayer(LedCube *cube, uint8_t layer, uint8_t *newPattern)
   }
 }
 
-void updateLeds(LedPattern *leds)
+void updateLayer(LedCube *cube, uint8_t layer)
 {
   
 }
