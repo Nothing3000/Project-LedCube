@@ -10,16 +10,22 @@ extern "C" {
 
 
 typedef struct {
-  uint8_t cols;
-  uint8_t rows;
-  uint8_t *rowPins;
   uint8_t **pattern;
-  Shifter *shifter;
-} LedPattern;
+} LedCubeLayer;
 
-LedPattern *newLedPattern(uint8_t cols, uint8_t rows, uint8_t *rowPins, Shifter *shifter);
-void setLedPattern(LedPattern *leds, uint8_t *newPattern);
-void updateLeds(LedPattern *leds);
+typedef struct {
+  uint8_t layerSize;
+  LedCubeLayer *layers;
+  uint8_t layerCols;
+  uint8_t layerRows;
+  Shifter *shifter;
+} LedCube;
+
+LedCube *newLedCube(uint8_t rows, uint8_t cols, uint8_t layerSize, Shifter *shifter);
+
+LedCubeLayer newLedCubeLayer(uint8_t rows, uint8_t cols);
+void setLedCubeLayer(LedCube *cube, uint8_t layer, uint8_t *newPattern);
+void updateLeds(LedCubeLayer *leds);
 
 #ifdef __cplusplus
 }

@@ -1,35 +1,44 @@
-#include "LedPattern.h"
+#include "LedCubePattern.h"
 
-LedPattern *newLedPattern(uint8_t rows, uint8_t cols, uint8_t *rowPins, Shifter *shifter)
+LedCube *newLedCube(uint8_t rows, uint8_t cols, uint8_t layerSize, Shifter *shifter)
 {
-  LedPattern *leds;
-  leds = (LedPattern *)malloc(sizeof(LedPattern));
+  LedCube *cube;
+  cube = (LedCube *)malloc(sizeof(LedCube));
 
-  for(int8_t i = 0; i < cols; i++)
+  cube -> layerRows = rows;
+  cube -> layerCols = cols;
+  cube -> layerSize = layerSize;
+  cube -> shifter = shifter;
+  cube -> layers = (LedCubeLayer *)malloc(layerSize * sizeof(LedCubeLayer));
+
+  for(int8_t i = 0; i < layerSize; i++)
   {
-    pinMode(rowPins[i], OUTPUT);
-    digitalWrite(rowPins[i], HIGH);
+    cube -> layers[i] = newLedCubeLayer(rows, cols);
   }
 
-  leds -> cols = cols;
-  leds -> rows = rows;
-  leds -> rowPins = rowPins;
-  leds -> shifter = shifter;
-  leds -> pattern = (uint8_t **)calloc(rows, sizeof(uint8_t));
+  return cube;
+}
+
+
+LedCubeLayer newLedCubeLayer(uint8_t rows, uint8_t cols)
+{
+  LedCubeLayer leds;
+  
+  leds.pattern = (uint8_t **)malloc(rows * sizeof(uint8_t*));
 
   for(int8_t i = 0; i < cols; i++)
   {
-    leds -> pattern[i] = (uint8_t *)calloc(cols, sizeof(uint8_t));
+    leds.pattern[i] = (uint8_t *)calloc(cols, sizeof(uint8_t));
   }
 
   return leds;
 }
 
-void setLedPattern(LedPattern *leds, uint8_t *newPattern)
+void setLedCubeLayer(LedCube *cube, uint8_t layer, uint8_t *newPattern)
 {
-  uint8_t cols = leds -> cols;
-  uint8_t rows = leds -> rows;
-  uint8_t **pattern = leds -> pattern;
+  uint8_t cols = cube -> layerCols;
+  uint8_t rows = cube -> layerRows;
+  uint8_t **pattern = cube -> layers[layer].pattern;
 
   for(int8_t row = 0; row < rows; row++)
   {
@@ -42,19 +51,6 @@ void setLedPattern(LedPattern *leds, uint8_t *newPattern)
 
 void updateLeds(LedPattern *leds)
 {
-  uint8_t cols = leds -> cols;
-  uint8_t rows = leds -> rows;
-  uint8_t **pattern = leds -> pattern;
-  uint8_t *rowPins = leds -> rowPins;
-  Shifter *shifter = leds -> shifter;
-
-  for(int8_t row = 0; row < rows; row++)
-  {
-    setShifterPattern(shifter, pattern[row]);
-    digitalWrite(rowPins[row], LOW);
-    digitalWrite(rowPins[row], HIGH);
-  }
-  
   
 }
 
