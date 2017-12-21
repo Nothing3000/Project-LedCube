@@ -19,6 +19,21 @@ LedCube *newLedCube(uint8_t rows, uint8_t cols, uint8_t layerSize, Shifter *shif
   return cube;
 }
 
+void updateCube(LedCube *cube)
+{
+  static uint8_t currentLayer = 0;
+  static uint8_t currentGroup = 0;
+
+  updateLayer(cube, currentLayer, currentGroup);
+
+  if(currentLayer == 3 && currentGroup == 1)
+    currentLayer = 0;
+  else if(currentLayer < 4 && currentGroup == 1)
+    currentLayer++;
+
+  currentGroup ^= 1;
+}
+
 
 LedCubeLayer newLedCubeLayer(uint8_t rows, uint8_t cols)
 {
@@ -44,13 +59,33 @@ void setLedCubeLayer(LedCube *cube, uint8_t layer, uint8_t *newPattern)
   {
     for(int8_t col = 0; col < cols; col++)
     {
-      pattern[row][col] = ((uint8_t **)newPattern)[row][col];
+      pattern[row][col] = newPattern[row*cols+col];
     }
   }
 }
 
-void updateLayer(LedCube *cube, uint8_t layer)
+void updateLayer(LedCube *cube, uint8_t layer, uint8_t group)
 {
+  uint8_t patternBuffer[16];
   
+  uint8_t **pattern = cube -> layers[layer].pattern;
+  Shifter *shifter = cube -> shifter;
+
+  for(int8_t i = 0; i < 8; i++)
+  {
+    if(group == 0)
+      patternBuffer[i] = ((uint8_t *)pattern)[i];
+    if(group == 1)
+      patternBuffer[i] = ((uint8_t *)pattern)[i+8];
+  }
+
+  for(int8_t i = 8; i < 16; i++)
+  {
+    patternBuffer[i] = HIGH; 
+  }
+
+  patternBuffer[layer*2+8 + group] = LOW;
+ 
+  setShifterPattern(shifter, patternBuffer);
 }
 

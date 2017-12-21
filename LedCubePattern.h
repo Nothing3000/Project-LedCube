@@ -1,5 +1,5 @@
-#ifndef LEDPATTERN_H
-#define LEDPATTERN_H
+#ifndef LEDCUBEPATTERN_H
+#define LEDCUBEPATTERN_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -25,9 +25,9 @@ LedCube *newLedCube(uint8_t rows, uint8_t cols, uint8_t layerSize, Shifter *shif
 
 LedCubeLayer newLedCubeLayer(uint8_t rows, uint8_t cols);
 void setLedCubeLayer(LedCube *cube, uint8_t layer, uint8_t *newPattern);
-void updateLeds(LedCubeLayer *leds);
+void updateLayer(LedCube *cube, uint8_t layer, uint8_t group);
 
 #ifdef __cplusplus
 }
 #endif
-#endif //LEDPATTERN_H
+#endif //LEDCUBEPATTERN_H
