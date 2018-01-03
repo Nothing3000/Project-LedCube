@@ -22,6 +22,7 @@ typedef struct {
 } LedCube;
 
 LedCube *newLedCube(uint8_t rows, uint8_t cols, uint8_t layerSize, Shifter *shifter);
+void updateCube(LedCube *cube);
 
 LedCubeLayer newLedCubeLayer(uint8_t rows, uint8_t cols);
 void setLedCubeLayer(LedCube *cube, uint8_t layer, uint8_t *newPattern);
