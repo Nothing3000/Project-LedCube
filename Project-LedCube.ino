@@ -26,30 +26,114 @@ LedCube *cube = newLedCube(4, 4, 4, shifter);
 
 void setup()
 {
-  setLedCubeLayer(cube, 4, &Pattern2[0][0]);
-  setLedCubeLayer(cube, 3, &Pattern2[0][0]);
-  setLedCubeLayer(cube, 2, &Pattern2[0][0]);
-  setLedCubeLayer(cube, 1, &Pattern2[0][0]);
+  setLedCubeLayer(cube, 4, &pattern2[0][0]);
+  setLedCubeLayer(cube, 3, &pattern2[0][0]);
+  setLedCubeLayer(cube, 2, &pattern2[0][0]);
+  setLedCubeLayer(cube, 1, &pattern2[0][0]);
+  setupCubeInterrupt(cube);
   //setShifterPattern(shifter, shiftPattern);
 }
 
 void loop()
 {
-  for(int8_t layer = 1; i < 5; i++)
+  bottomFill();
+  bottomEmpty();
+  delay(2000);
+  topFill();
+  topEmpty();
+}
+
+void bottomFill()
+{
+  for(int8_t layer = 1; layer < 5; layer++)
   {
-    for(int8_t row = 0; i < 4; i++)
+    for(int8_t row = 0; row < 4; row++)
     {
-      for(int8_t col = 0; i <4; i++)
+      for(int8_t col = 0; col <4; col++)
       {
-        patern2[row][col] = LOW;
+        pattern2[row][col] = LOW;
       }
+    }
       
-    for(int8_t row = 0; i < 4; i++)
+    for(int8_t row = 0; row < 4; row++)
     {
-      for(int8_t col = 0; i <4; i++)
+      for(int8_t col = 0; col <4; col++)
       {
-        patern2[row][col] = HIGH;
+        pattern2[row][col] = HIGH;
         setLedCubeLayer(cube, layer, &pattern2[0][0]);
+        delay(100);
+      }
+    }
+  }
+}
+
+void bottomEmpty()
+{
+  for(int8_t layer = 1; layer < 5; layer++)
+  {
+    for(int8_t row = 0; row < 4; row++)
+    {
+      for(int8_t col = 0; col <4; col++)
+      {
+        pattern2[row][col] = HIGH;
+      }
+    }
+      
+    for(int8_t row = 0; row < 4; row++)
+    {
+      for(int8_t col = 0; col <4; col++)
+      {
+        pattern2[row][col] = LOW;
+        setLedCubeLayer(cube, layer, &pattern2[0][0]);
+        delay(100);
+      }
+    }
+  }
+}
+
+void topFill()
+{
+  for(int8_t layer = 4; layer > 0; layer--)
+  {
+    for(int8_t row = 3; row >= 0; row--)
+    {
+      for(int8_t col = 3; col >= 0; col--)
+      {
+        pattern2[row][col] = LOW;
+      }
+    }
+      
+    for(int8_t row = 3; row >= 0; row--)
+    {
+      for(int8_t col = 3; col >= 0; col--)
+      {
+        pattern2[row][col] = HIGH;
+        setLedCubeLayer(cube, layer, &pattern2[0][0]);
+        delay(100);
+      }
+    }
+  }
+}
+
+void topEmpty()
+{
+  for(int8_t layer = 4; layer > 0; layer--)
+  {
+    for(int8_t row = 3; row >= 0; row--)
+    {
+      for(int8_t col = 3; col >= 0; col--)
+      {
+        pattern2[row][col] = HIGH;
+      }
+    }
+      
+    for(int8_t row = 3; row >= 0; row--)
+    {
+      for(int8_t col = 3; col >= 0; col--)
+      {
+        pattern2[row][col] = LOW;
+        setLedCubeLayer(cube, layer, &pattern2[0][0]);
+        delay(100);
       }
     }
   }

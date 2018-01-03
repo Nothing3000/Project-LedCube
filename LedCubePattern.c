@@ -1,5 +1,7 @@
 #include "LedCubePattern.h"
 
+LedCube *cubeInterrupt;
+
 LedCube *newLedCube(uint8_t rows, uint8_t cols, uint8_t layerSize, Shifter *shifter)
 {
   LedCube *cube;
@@ -17,6 +19,23 @@ LedCube *newLedCube(uint8_t rows, uint8_t cols, uint8_t layerSize, Shifter *shif
   }
 
   return cube;
+}
+
+void setupCubeInterrupt(LedCube *cube)
+{
+  // initialize timer1 
+  noInterrupts();           // disable all interrupts
+  cubeInterrupt = cube;
+  
+  TCCR1A = 0;
+  TCCR1B = 0;
+
+  // Set timer1_counter to the correct value for our interrupt interval 
+  
+  TCNT1 = TIMER1VALUE;   // preload timer 65536-16MHz/256/100Hz
+  TCCR1B |= (1 << CS12);    // 256 prescaler 
+  TIMSK1 |= (1 << TOIE1);   // enable timer overflow interrupt
+  interrupts();             // enable all interrupts
 }
 
 void updateCube(LedCube *cube)
@@ -95,5 +114,11 @@ void updateLayer(LedCube *cube, uint8_t layer, uint8_t group)
   patternBuffer[17-2*layer - group] = LOW;
  
   setShifterPattern(shifter, patternBuffer);
+}
+
+ISR(TIMER1_OVF_vect)        // interrupt service routine 
+{
+  updateCube(cubeInterrupt);
+  TCNT1 = TIMER1VALUE;   // preload timer
 }
 

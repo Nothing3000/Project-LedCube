@@ -8,6 +8,7 @@ extern "C" {
 #include "Arduino.h"
 #include "Shifter.h"
 
+#define TIMER1VALUE 65523
 
 typedef struct {
   uint8_t **pattern;
@@ -23,6 +24,7 @@ typedef struct {
 
 LedCube *newLedCube(uint8_t rows, uint8_t cols, uint8_t layerSize, Shifter *shifter);
 void updateCube(LedCube *cube);
+void setupCubeInterrupt(LedCube *cube);
 
 LedCubeLayer newLedCubeLayer(uint8_t rows, uint8_t cols);
 void setLedCubeLayer(LedCube *cube, uint8_t layer, uint8_t *newPattern);
