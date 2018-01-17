@@ -1,7 +1,28 @@
 #include "LedCubePattern.h"
 
-LedCube *cubeInterrupt;
+static LedCube **cubeInterrupts = NULL;
+static uint8_t cubes = 0;
+static uint16_t timervalue;
 
+static void updateCube(LedCube *cube);
+static LedCubeLayer newLedCubeLayer(uint8_t rows, uint8_t cols);
+static void updateLayer(LedCube *cube, uint8_t layer, uint8_t group);
+
+/*
+ * Updates the next layer of currently active LED Cubes.
+ */
+ISR(TIMER1_OVF_vect)
+{
+  for(int8_t i = 0; i < cubes; i++)
+  {
+    updateCube(cubeInterrupts[i]);
+    TCNT1 = timervalue;   // Reset timer
+  }
+}
+
+/*
+ * Assigns input values to a knew ledcube struct.
+ */
 LedCube *newLedCube(uint8_t rows, uint8_t cols, uint8_t layerSize, Shifter *shifter)
 {
   LedCube *cube;
@@ -21,24 +42,31 @@ LedCube *newLedCube(uint8_t rows, uint8_t cols, uint8_t layerSize, Shifter *shif
   return cube;
 }
 
+/*
+ * Sets the interrupt and timing values for a ledcube.
+ */
 void setupCubeInterrupt(LedCube *cube)
 {
-  // initialize timer1 
   noInterrupts();           // disable all interrupts
-  cubeInterrupt = cube;
+  cubes++;
+  cubeInterrupts = (LedCube **)realloc(cubeInterrupts, cubes*sizeof(LedCube *));
+  cubeInterrupts[cubes-1] = cube;
+  timervalue = 65536-(2000000/(400*cubes)); //timervalue = 65536-((16E6/8)/(200*cubes))
+  
   
   TCCR1A = 0;
   TCCR1B = 0;
-
-  // Set timer1_counter to the correct value for our interrupt interval 
   
-  TCNT1 = TIMER1VALUE;   // preload timer 65536-16MHz/256/100Hz
-  TCCR1B |= (1 << CS12);    // 256 prescaler 
+  TCNT1 = timervalue;       // preload the timervalue
+  TCCR1B |= (1 << CS11);    // 8 prescaler 
   TIMSK1 |= (1 << TOIE1);   // enable timer overflow interrupt
   interrupts();             // enable all interrupts
 }
 
-void updateCube(LedCube *cube)
+/*
+ * Used by the ISR function, turns on the next group of LEDS according to the currently stored pattern.
+ */
+static void updateCube(LedCube *cube)
 {
   static uint8_t currentLayer = 1;
   static uint8_t currentGroup = 0;
@@ -53,8 +81,10 @@ void updateCube(LedCube *cube)
   currentGroup ^= 1;
 }
 
-
-LedCubeLayer newLedCubeLayer(uint8_t rows, uint8_t cols)
+/*
+ * Used by the newLedCube function to reserve memory space for the individual layers.
+ */
+static LedCubeLayer newLedCubeLayer(uint8_t rows, uint8_t cols)
 {
   LedCubeLayer leds;
   
@@ -68,7 +98,10 @@ LedCubeLayer newLedCubeLayer(uint8_t rows, uint8_t cols)
   return leds;
 }
 
-void setLedCubeLayer(LedCube *cube, uint8_t layer, uint8_t *newPattern)
+/*
+ * Copies the data from newPattern to the internal storage for the selected layer.
+ */
+void setLedCubeLayer(LedCube *cube, uint8_t layer, const uint8_t *newPattern)
 {
   uint8_t cols = cube -> layerCols;
   uint8_t rows = cube -> layerRows;
@@ -83,7 +116,41 @@ void setLedCubeLayer(LedCube *cube, uint8_t layer, uint8_t *newPattern)
   }
 }
 
-void updateLayer(LedCube *cube, uint8_t layer, uint8_t group)
+/*
+ * Copies the data from newPattern to the internal storage for all the layers.
+ */
+
+void setAllLedCubeLayer(LedCube *cube, const uint8_t *newPattern)
+{
+  for(int8_t layer = 4; layer > 0; layer--)
+  {
+    setLedCubeLayer(cube, layer, newPattern);
+  }
+}
+
+/*
+ * Copies the data currently in the source layer to the destenation layer.
+ */
+void copyLedCubeLayer(LedCube *cube, uint8_t dest, uint8_t source)
+{
+  uint8_t cols = cube -> layerCols;
+  uint8_t rows = cube -> layerRows;
+  uint8_t **destPattern = cube -> layers[dest-1].pattern;
+  uint8_t **sourcePattern = cube -> layers[source-1].pattern;
+
+  for(int8_t row = 0; row < rows; row++)
+  {
+    for(int8_t col = 0; col < cols; col++)
+    {
+      destPattern[row][col] = sourcePattern[row][col];
+    }
+  }
+}
+
+/*
+ * Used by the updateCube function, this function updates the individual groups of a layer.
+ */
+static void updateLayer(LedCube *cube, uint8_t layer, uint8_t group)
 {
   uint8_t patternBuffer[16];
   
@@ -114,11 +181,5 @@ void updateLayer(LedCube *cube, uint8_t layer, uint8_t group)
   patternBuffer[17-2*layer - group] = LOW;
  
   setShifterPattern(shifter, patternBuffer);
-}
-
-ISR(TIMER1_OVF_vect)        // interrupt service routine 
-{
-  updateCube(cubeInterrupt);
-  TCNT1 = TIMER1VALUE;   // preload timer
 }
 
